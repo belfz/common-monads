@@ -1,15 +1,10 @@
 import Control.Monad.Except
-import Control.Monad
+-- import Data.Either
 
 logic :: MonadError e m => Int -> e -> m Int
 logic n e = if n `mod` 2 == 0
   then return $ n * 1000
   else throwError e
-
--- we're declaring (using constraints before the fat arrow) that both left and right values will need to be "printable"
-liftEither :: (Show l, Show r) => Either l r -> IO ()
-liftEither (Right a) = putStrLn $ "it worked: " ++ (show a)
-liftEither (Left e)  = putStrLn $ "it failed with error: " ++ (show e)
 
 main :: IO ()
 main = let
@@ -17,4 +12,4 @@ main = let
   a <- logic 2 "goddamit, it failed on the first step!" :: Either String Int -- this "type assertion" notation is like calling `logic[Either[String, Int]]` in Scala
   b <- logic 4 "goddamit, it failed on the second step!"
   return $ a + b  -- "return $ a + b" is like "yield a + b" in Scala
-  in liftEither result
+  in either (\l -> putStrLn $ "it failed with error: " ++ (show l)) (\r -> putStrLn $ "it worked: " ++ (show r)) result
